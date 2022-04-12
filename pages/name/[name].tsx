@@ -10,18 +10,16 @@ import {
   SinglePokemonCard,
   SinglePokemonImage,
 } from "../../components/pokemon";
-import { PokemonSmall } from "../../interfaces";
+
+import { PokemonListResponse, PokemonSmall } from "../../interfaces";
+import { pokeApi } from "../../api";
 import { localFavorites, getPokemonInfo } from "../../utils";
 
 interface Props {
   pokemon: PokemonSmall;
 }
 
-const PokemonPage: NextPage<Props> = ({ pokemon }) => {
-  /* const [isInFavorites, setIsInFavorites] = useState(
-    typeof window === "undefined" && localFavorites.existInFavorites(pokemon.id)
-  ); */
-
+const PokemonByNamePage: NextPage<Props> = ({ pokemon }) => {
   const [isInFavorites, setIsInFavorites] = useState<boolean>(false);
 
   const onToggleFavorite = () => {
@@ -65,28 +63,19 @@ const PokemonPage: NextPage<Props> = ({ pokemon }) => {
 };
 
 export const getStaticPaths: GetStaticPaths = async (ctx) => {
-  const pokemon151 = [...Array(151)].map((_, idx) => `${idx + 1}`);
+  const { data } = await pokeApi.get<PokemonListResponse>(`/pokemon?limit=151`); // your fetch function here
 
   return {
-    /* paths: [
-      {
-        params: { id: "1" },
-      },
-      {
-        params: { id: "2" },
-      },
-      {
-        params: { id: "3" },
-      },
-    ], */
-    paths: pokemon151.map((id) => ({ params: { id } })),
+    paths: data.results.map((pokemon) => ({
+      params: { name: pokemon.name },
+    })),
     fallback: false,
   };
 };
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const { id } = params as { id: string };
-  const pokemon = await getPokemonInfo(id);
+  const { name } = params as { name: string };
+  const pokemon = await getPokemonInfo(name);
 
   return {
     props: {
@@ -95,4 +84,4 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   };
 };
 
-export default PokemonPage;
+export default PokemonByNamePage;

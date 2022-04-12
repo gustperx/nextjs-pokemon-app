@@ -19,6 +19,12 @@ export interface Pokemon {
   weight: number;
 }
 
+export interface PokemonSmall {
+  id: number;
+  name: string;
+  sprites: Sprites;
+}
+
 export interface Ability {
   ability: Species;
   is_hidden: boolean;
